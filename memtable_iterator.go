@@ -16,13 +16,17 @@ func (it *MemIterator) InternalKey() *InternalKey {
 // Advances to the next position.
 // REQUIRES: Valid()
 func (it *MemIterator) Next() {
-	it.listIter.Next()
+	if it.listIter.node != nil {
+		it.listIter.Next()
+	}
 }
 
 // Advances to the previous position.
 // REQUIRES: Valid()
 func (it *MemIterator) Prev() {
-	it.listIter.Prev()
+	if it.listIter.node != nil {
+		it.listIter.Prev()
+	}
 }
 
 // Advance to the first entry with a key >= target

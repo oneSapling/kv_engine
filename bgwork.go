@@ -125,7 +125,8 @@ func (db *Db) backgroundCompactionChan() {
 	descriptorNumber, _ := db.Current.compactionSave()
 	db.SetCurrentFile(descriptorNumber)
 	db.Current.lock.Unlock()
-	for fiel,_ := range db.Current.restRemoves {
+	// todo:删除操作
+	/*for fiel,_ := range db.Current.restRemoves {
 		errRemove := os.Remove(fiel)
 		if errRemove != nil {
 			version.restRemoves[fiel] = 0
@@ -138,7 +139,7 @@ func (db *Db) backgroundCompactionChan() {
 			version.restRemoves[fiel] = 0
 			log.Println("removeFile:"+fiel)
 		}
-	}
+	}*/
 	db.Current.restRemoves = version.restRemoves
 	if comapctionFlag&&loopNum > 0 {
 		log.Println("-compaction")
@@ -161,12 +162,13 @@ func (db *Db) dbFlush() {
 	if flushFlag {
 		log.Println("-flush")
 	}
+
 }
 
 func (db *Db) SetCurrentFile(descriptorNumber uint64) { // 给current文件赋值最新的版本号
 	tmp := TempFileName(db.name, descriptorNumber)
-	ioutil.WriteFile(tmp, []byte(fmt.Sprintf("%d", descriptorNumber)), 0600)
-	os.Rename(tmp, CurrentFileName(db.name))
+	_ = ioutil.WriteFile(tmp, []byte(fmt.Sprintf("%d", descriptorNumber)), 0600)
+	_ = os.Rename(tmp, CurrentFileName(db.name))
 }
 
 func (db *Db) ReadCurrentFile() uint64 {

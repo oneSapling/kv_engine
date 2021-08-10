@@ -90,17 +90,10 @@ func (db *Db) Get(key []byte) ([]byte, error) {
 		}
 	}
 	// 将一个版本文件看作是一个存储快照
-	num := db.ReadCurrentFile()
-	if num > 0 {
-		currentVersion, err := LoadVersion(dbPath, num)
-		if err != nil {
-			return nil, err
-		}
-		value, err = currentVersion.Get(key)
-		return value, err
-	}else{
-		return nil,ErrNotFound
-	}
+	//num := db.ReadCurrentFile()
+	currentVersion := db.Current
+	value, err = currentVersion.Get(key)
+	return value, err
 }
 
 func (db *Db) Delete(key []byte) error {
