@@ -126,7 +126,7 @@ func (db *Db) backgroundCompactionChan() {
 	db.SetCurrentFile(descriptorNumber)
 	db.Current.lock.Unlock()
 	// todo:删除操作
-	/*for fiel,_ := range db.Current.restRemoves {
+	for fiel,_ := range db.Current.restRemoves {
 		errRemove := os.Remove(fiel)
 		if errRemove != nil {
 			version.restRemoves[fiel] = 0
@@ -139,7 +139,7 @@ func (db *Db) backgroundCompactionChan() {
 			version.restRemoves[fiel] = 0
 			log.Println("removeFile:"+fiel)
 		}
-	}*/
+	}
 	db.Current.restRemoves = version.restRemoves
 	if comapctionFlag&&loopNum > 0 {
 		log.Println("-compaction")

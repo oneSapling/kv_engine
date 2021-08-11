@@ -2,7 +2,7 @@ package kvstore
 
 const (
 	L0_CompactionTrigger     = 4
-	Write_buffer_size        = 16<<20
+	Write_buffer_size        = (2<<20)*4
 	NumLevels                = 7
 	// 2M
 	MaxFileSize              = 2<<20

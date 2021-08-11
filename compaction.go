@@ -418,10 +418,17 @@ func (v *Version) pickCompaction() *Compaction {
 	}
 	var smallest, largest *InternalKey
 	// Files in level 0 may overlap each other, so pick up all overlapping ones
+	num_compaction := 0
 	if c.level == 0 {
 		// 把第0层文件都取到内存中
-		c.inputs[0] = append(c.inputs[0], v.Files[c.level]...)
-		c.levelInput = append(c.levelInput, v.Files[c.level]...)
+		// c.inputs[0] = append(c.inputs[0], v.Files[c.level]...)
+		for i := 0; i < len(v.Files[0]); i++ {
+			num_compaction++
+			c.inputs[0] = append(c.inputs[0], v.Files[0][i])
+			if num_compaction >= 4{
+				break;
+			}
+		}
 		smallest = c.inputs[0][0].smallest
 		largest = c.inputs[0][0].largest
 		for i := 1; i < len(c.inputs[0]); i++ {
@@ -449,10 +456,9 @@ func (v *Version) pickCompaction() *Compaction {
 		smallest = c.inputs[0][0].smallest
 		largest = c.inputs[0][0].largest
 	}
-
+	// 选择重叠的块
 	for i := 0; i < len(v.Files[c.level+1]); i++ {
 		f := v.Files[c.level+1][i]
-
 		if InternalKeyComparator(f.largest, smallest) < 0 || InternalKeyComparator(f.smallest, largest) > 0 {
 			// "f" is completely before specified range; skip it,  // "f" is completely after specified range; skip it
 		} else {
