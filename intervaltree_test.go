@@ -3,6 +3,7 @@ package kvstore
 import (
     "fmt"
     "testing"
+    "time"
 )
 
 func TestTreeCreation(t *testing.T) {
@@ -317,4 +318,63 @@ func TestTreeEmpty(t *testing.T) {
     if tree.Empty() == true {
         t.Error("IntervalTree should not be empty after insertion.")
     }
+}
+func TestParrll(t *testing.T) {
+    tree := NewIntervalTree()
+    go func() {
+        fmt.Println("xian1")
+        tree.lock.Lock()
+        for i := 0; i < 10000; i++ {
+            interval1,_ := NewInterval("u01","u08")
+
+            tree.Insert(interval1)
+
+        }
+        fmt.Println("结束")
+        tree.lock.Unlock()
+    }()
+
+    go func() {
+        time.Sleep(1*time.Second)
+        fmt.Println("xian2")
+
+        interval1,_ := NewInterval("u01","u08")
+        tree.lock.Lock()
+        tree.Insert(interval1)
+        tree.lock.Unlock()
+        fmt.Println("xiancheng2")
+    }()
+    time.Sleep(300*time.Second)
+}
+
+func TestFindOverlapMultipleReturned1(t *testing.T) {
+    tree := NewIntervalTree()
+
+    start := "u01"
+    end := "u01"
+    interval, _ := NewFileInterval(start, end,1)
+
+    start2 := "u01"
+    end2 := "u03"
+    interval2, _ := NewFileInterval(start2, end2,2)
+
+    start3 := "u05"
+    end3 := "u07"
+    interval3, _ := NewFileInterval(start3, end3,3)
+
+    start4 := "u01"
+    end4 := "u08"
+    interval4, _ := NewFileInterval(start4, end4,4)
+
+    tree.Insert(interval)
+    tree.Insert(interval2)
+    tree.Insert(interval3)
+    tree.Insert(interval4)
+
+    start5 := "u01"
+    end5 := "u05"
+    testInterval1, _ := NewInterval(start5, end5)
+
+    overlaps := tree.FindOverlap(testInterval1)
+    fmt.Println(overlaps)
 }

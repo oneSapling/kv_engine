@@ -16,7 +16,7 @@ type FileMetaData struct {
 
 type Version struct {
 	// 控制当前版本的获取
-	lock                       *sync.Mutex
+	lock                     *sync.Mutex
 	// 里面缓存sstable的元数据
 	tableCache               *TableCache
 	nextFileNumber           uint64
@@ -34,6 +34,8 @@ type Version struct {
 	restRemoves   map[string]int
 	// compactionTime
 	compactionTimes      int
+	// 用于检索level0的索引
+	intervaltree *IntervalTree
 }
 
 func NewVersion(dbName string) *Version {
@@ -121,6 +123,10 @@ func (v *Version) Get(key []byte) ([]byte, error) {
 			continue
 		}
 		if level == 0 {
+			//givenInterval,_ := NewInterval(string(key),string(key))
+			v.intervaltree.lock.Lock()
+			//overlaps := v.intervaltree.FindOverlap(givenInterval)
+			v.intervaltree.lock.Unlock()
 			for i := 0; i < len(v.Files[level]); i++ {
 				f := v.Files[level][i]
 				if UserKeyComparator(key, f.smallest.UserKey) >= 0 && UserKeyComparator(key, f.largest.UserKey) <= 0 {

@@ -124,30 +124,6 @@ func (v *Version) addFile(level int, meta *FileMetaData) {
 }
 
 func (v *Version) WriteLevel0Table(imm *MemTable) {
-	/*var meta FileMetaData
-	meta.allowSeeks = 1 << 30
-	meta.Number = v.nextFileNumber
-	v.nextFileNumber++
-	builder := NewTableBuilder((TableFileName(v.tableCache.DbName, meta.Number)))
-	iter := imm.NewIterator()
-	iter.SeekToFirst()
-	if iter.Valid() {
-		for ; iter.Valid(); iter.Next() {
-			if meta.smallest == nil {
-				meta.smallest = iter.InternalKey()
-			}
-			meta.largest = iter.InternalKey()
-			builder.Add(iter.InternalKey())
-		}
-		_ = builder.Finish()
-		meta.fileSize = uint64(builder.FileSize())
-		meta.smallest.UserValue = nil
-		meta.largest.UserValue = nil
-	}
-	v.lock.Lock()
-	v.addFile(0, &meta)
-	v.lock.Unlock()*/
-
 	iter := imm.NewIterator()
 	iter.SeekToFirst()
 	var list []*FileMetaData
@@ -176,6 +152,14 @@ func (v *Version) WriteLevel0Table(imm *MemTable) {
 	}
 	for i := 0; i < len(list); i++ {
 		v.lock.Lock()
+
+		if list[i].smallest != nil && list[i].largest != nil {
+			//v.intervaltree.lock.Lock()
+			interval,_ := NewFileInterval(string(list[i].smallest.UserKey), string(list[i].largest.UserKey), list[i].Number)
+			v.intervaltree.Insert(interval)
+			//v.intervaltree.lock.Unlock()
+		}
+
 		v.addFile(0, list[i])
 		v.lock.Unlock()
 	}

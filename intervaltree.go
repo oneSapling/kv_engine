@@ -3,6 +3,7 @@ package kvstore
 import (
     "errors"
     "fmt"
+    "sync"
 )
 
 // t.before（u）判断t是否在u前面
@@ -20,12 +21,13 @@ import (
     Use *IntervalTree Receiver Type to avoid copying
  */
 type IntervalTree struct {
+    lock *sync.Mutex
     root *IntervalTreeNode
 }
 
 func NewIntervalTree() *IntervalTree {
     // constructor: create tree (empty)
-    return &IntervalTree{nil}
+    return &IntervalTree{&sync.Mutex{},nil}
 }
 
 func (tree *IntervalTree) Empty() bool {
@@ -71,6 +73,7 @@ type IntervalTreeNode struct {
     subTreeMax string
     left *IntervalTreeNode
     right *IntervalTreeNode
+    filenum  uint64
 }
 
 func newIntervalTreeNode(i Interval) *IntervalTreeNode {
@@ -78,6 +81,7 @@ func newIntervalTreeNode(i Interval) *IntervalTreeNode {
     node := new(IntervalTreeNode)
     node.i = i
     node.subTreeMax = i.End()
+    node.filenum = i.filenum
     return node
 }
 
@@ -149,6 +153,7 @@ func (node *IntervalTreeNode) overlaps(i Interval) bool {
 type Interval struct {
     start string
     end string
+    filenum  uint64
     // Payload PayLoad
 }
 
@@ -158,7 +163,17 @@ func NewInterval(start string, end string) (Interval, error) {
         fmt.Println("开始的范围大于末尾，这不是一个区间")
         return i, errors.New("Interval::NewInterval end cannot come after start.")
     }else {
-        return Interval{start, end}, nil
+        return Interval{start, end,0}, nil
+    }
+}
+
+func NewFileInterval(start string, end string, filenum uint64) (Interval, error) {
+    var i Interval
+    if UserKeyComparator([]byte(start), []byte(end)) > 0 {
+        fmt.Println("开始的范围大于末尾，这不是一个区间")
+        return i, errors.New("Interval::NewInterval end cannot come after start.")
+    }else {
+        return Interval{start, end,filenum}, nil
     }
 }
 
