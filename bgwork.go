@@ -36,18 +36,6 @@ func (db *Db) bgCompactionThead() {
 func (db *Db) backgroundCompactionChan() {
 	version := db.Current.Copy()
 
-	/*num := db.ReadCurrentFile()
-	if num <= 0 {
-		return
-	}
-	version, err := LoadVersion(dbPath, num)
-	if err != nil {
-		panic(err.Error())
-		return
-	}
-	version.removes = make(map[string]int)
-	version.compactionTimes = 0*/
-
 	level_0_map := make(map[*FileMetaData]int) // 求出来参加到compaction中的块，方便以后在替换版本的时候清除
 	for i := 0; i < len(version.Files[0]); i++ {
 		level_0_map[version.Files[0][i]] = 0
@@ -153,10 +141,10 @@ func (db *Db) dbFlush() {
 		db.Current.WriteLevel0Table(imm)
 		flushFlag = true
 	}
-	db.Current.lock.Lock()
-	descriptorNumber, _ := db.Current.Save()
-	db.SetCurrentFile(descriptorNumber)
-	db.Current.lock.Unlock()
+	//db.Current.lock.Lock()
+	//descriptorNumber, _ := db.Current.Save()
+	//db.SetCurrentFile(descriptorNumber)
+	//db.Current.lock.Unlock()
 	db.imm = nil
 	db.flushScheduled = false
 	if flushFlag {

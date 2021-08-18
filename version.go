@@ -46,6 +46,7 @@ func NewVersion(dbName string) *Version {
 	v.tableCache = NewTableCache(dbName)
 	v.nextFileNumber = 1
 	v.compactionNextFileNumber = 900000
+	v.intervaltree = NewIntervalTree()
 	return &v
 }
 
@@ -60,6 +61,11 @@ func LoadVersion(dbName string, number uint64) (*Version, error) {
 	v.lock = &sync.Mutex{}
 	v.restRemoves = make(map[string]int)
 	v.removes = make(map[string]int)
+	v.intervaltree = NewIntervalTree()
+	for i := 0; i < len(v.Files[0]); i++ {
+		interval := Interval{start: string(v.Files[0][i].smallest.UserKey), end: string(v.Files[0][i].largest.UserKey),filenum: v.Files[0][i].Number}
+		v.intervaltree.Insert(interval)
+	}
 	return v, v.DecodeFrom(file)
 }
 
@@ -124,9 +130,9 @@ func (v *Version) Get(key []byte) ([]byte, error) {
 		}
 		if level == 0 {
 			//givenInterval,_ := NewInterval(string(key),string(key))
-			v.intervaltree.lock.Lock()
+			//v.intervaltree.lock.Lock()
 			//overlaps := v.intervaltree.FindOverlap(givenInterval)
-			v.intervaltree.lock.Unlock()
+			//v.intervaltree.lock.Unlock()
 			for i := 0; i < len(v.Files[level]); i++ {
 				f := v.Files[level][i]
 				if UserKeyComparator(key, f.smallest.UserKey) >= 0 && UserKeyComparator(key, f.largest.UserKey) <= 0 {

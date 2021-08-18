@@ -62,6 +62,8 @@ func (db *Db) CloseDB() {
 		db.mem = New()
 		db.dbFlush()
 	}
+	descriptorNumber, _ := db.Current.Save()
+	db.SetCurrentFile(descriptorNumber)
 }
 
 func (db *Db) Put(key, value []byte) error {
@@ -106,7 +108,7 @@ func (db *Db) Delete(key []byte) error {
 }
 
 func (db *Db) makeRoomForWrite() (uint64, error) {
-	db.modMaybeScheduleCompaction() // 主要的compaction
+	// db.modMaybeScheduleCompaction() // 主要的compaction
 	for true {
 		if db.mem.ApproximateMemoryUsage() < Write_buffer_size {
 			// 判断一下level0的大小是否可以写，如果小于设定的阈值就可以写

@@ -154,10 +154,10 @@ func (v *Version) WriteLevel0Table(imm *MemTable) {
 		v.lock.Lock()
 
 		if list[i].smallest != nil && list[i].largest != nil {
-			//v.intervaltree.lock.Lock()
+			v.intervaltree.lock.Lock()
 			interval,_ := NewFileInterval(string(list[i].smallest.UserKey), string(list[i].largest.UserKey), list[i].Number)
 			v.intervaltree.Insert(interval)
-			//v.intervaltree.lock.Unlock()
+			v.intervaltree.lock.Unlock()
 		}
 
 		v.addFile(0, list[i])
