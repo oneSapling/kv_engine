@@ -351,30 +351,123 @@ func TestFindOverlapMultipleReturned1(t *testing.T) {
     tree := NewIntervalTree()
 
     start := "u01"
-    end := "u01"
+    end := "u03"
     interval, _ := NewFileInterval(start, end,1)
 
-    start2 := "u01"
+    start2 := "u02"
     end2 := "u03"
     interval2, _ := NewFileInterval(start2, end2,2)
 
-    start3 := "u05"
+    start3 := "u06"
     end3 := "u07"
     interval3, _ := NewFileInterval(start3, end3,3)
 
-    start4 := "u01"
+    start4 := "u00"
     end4 := "u08"
     interval4, _ := NewFileInterval(start4, end4,4)
+
+    start5 := "u00"
+    end5 := "u01"
+    interval5, _ := NewFileInterval(start5, end5,5)
+
+    start26 := "u00"
+    end26 := "u26"
+    interval26, _ := NewFileInterval(start26, end26,26)
+
+    start36 := "u011"
+    end36 := "u36"
+    interval36, _ := NewFileInterval(start36, end36,36)
+
+    start6 := "u00"
+    end6 := "u016"
+    interval6, _ := NewFileInterval(start6, end6,6)
+
+    start7 := "u00"
+    end7 := "u017"
+    interval7, _ := NewFileInterval(start7, end7,7)
+
+    start8 := "u00"
+    end8 := "u018"
+    interval8, _ := NewFileInterval(start8, end8,8)
+
+    start9 := "u00"
+    end9 := "u019"
+    interval9, _ := NewFileInterval(start9, end9,9)
+
+    start10 := "u00"
+    end10 := "u010"
+    interval10, _ := NewFileInterval(start10, end10,10)
+
+    start11 := "u00"
+    end11 := "u011"
+    interval11, _ := NewFileInterval(start11, end11,11)
+
+    start12 := "u00"
+    end12 := "u012"
+    interval12, _ := NewFileInterval(start12, end12,12)
+
+    start14 := "u00"
+    end14 := "u015"
+    interval14, _ := NewFileInterval(start14, end14,14)
+
+    start17 := "u00"
+    end17 := "u017"
+    interval17, _ := NewFileInterval(start17, end17,17)
+
+    start18 := "u00"
+    end18 := "u018"
+    interva18, _ := NewFileInterval(start18, end18,18)
+
 
     tree.Insert(interval)
     tree.Insert(interval2)
     tree.Insert(interval3)
     tree.Insert(interval4)
+    tree.Insert(interval5)
+    tree.Insert(interval26)
+    tree.Insert(interval36)
+    tree.Insert(interval6)
+    tree.Insert(interval7)
+    tree.Insert(interval8)
+    tree.Insert(interval9)
+    tree.Insert(interval10)
+    tree.Insert(interval11)
+    tree.Insert(interval12)
+    tree.Insert(interval14)
+    tree.Insert(interval17)
+    tree.Insert(interva18)
 
-    start5 := "u01"
-    end5 := "u05"
-    testInterval1, _ := NewInterval(start5, end5)
+    start111 := "u01"
+    end111 := "u01"
+    testInterval1, _ := NewInterval(start111, end111)
 
     overlaps := tree.FindOverlap(testInterval1)
     fmt.Println(overlaps)
+}
+
+func TestTwoFang(t *testing.T) {
+    arr := make([]int,0)
+    T := 10001
+    for i := 0; i < T; i++ {
+        arr = append(arr, i)
+    }
+    ans := make([]int,0)
+    // 查找
+    startT := time.Now()
+    for i := 0; i < len(arr); i++ {
+        ans = append(ans, arr[i])
+    }
+    endT := time.Now()
+
+    fmt.Println(endT.Sub(startT).Nanoseconds())
+
+    ans2 := make([]int,0)
+    startT2 := time.Now()
+    // 一半查找
+    for i := 0; i < len(arr)/2; i++ {
+        ans2 = append(ans2, arr[i])
+    }
+    endT2 := time.Now()
+    fmt.Println(endT2.Sub(startT2).Nanoseconds())
+
 }

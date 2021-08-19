@@ -1,6 +1,8 @@
 package kvstore
 
 import (
+	"fmt"
+	"math"
 	"time"
 )
 
@@ -38,12 +40,41 @@ func OpenDB(dbName string) (*Db, error) {
 		if err != nil {
 			return nil, err
 		}
+		for i := 0; i < len(v.Files[0]); i++ {
+			interval,_ := NewFileInterval(string(v.Files[0][i].smallest.UserKey), string(v.Files[0][i].largest.UserKey),v.Files[0][i].Number)
+			v.intervaltree.Insert(interval)
+			fmt.Println("start:",string(v.Files[0][i].smallest.UserKey),", end:",string(v.Files[0][i].largest.UserKey),", fileNum:",v.Files[0][i].Number)
+		}
 		db.Current = v
+		height := 0
+		height = process(v.intervaltree.root).height
+		fmt.Println("高度:",height)
+		fmt.Println("建树end")
 	} else {
 		db.Current = NewVersion(dbName)
 	}
 
 	return &db, nil
+}
+
+type Info struct {
+	 height int
+}
+
+func process(head *IntervalTreeNode) Info{
+	if(head==nil){
+		return Info{0}
+	}
+	var leftH = 0;
+	var rightH = 0;
+	if(head.left!=nil){
+		leftH = process(head.left).height
+	}
+	if(head.right!=nil){
+		rightH = process(head.right).height
+	}
+	height := int(math.Max(float64(leftH), float64(rightH)))
+	return Info{height+1}
 }
 
 func (db *Db) CloseDB() {

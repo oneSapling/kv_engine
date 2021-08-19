@@ -62,10 +62,6 @@ func LoadVersion(dbName string, number uint64) (*Version, error) {
 	v.restRemoves = make(map[string]int)
 	v.removes = make(map[string]int)
 	v.intervaltree = NewIntervalTree()
-	for i := 0; i < len(v.Files[0]); i++ {
-		interval := Interval{start: string(v.Files[0][i].smallest.UserKey), end: string(v.Files[0][i].largest.UserKey),filenum: v.Files[0][i].Number}
-		v.intervaltree.Insert(interval)
-	}
 	return v, v.DecodeFrom(file)
 }
 
@@ -123,25 +119,35 @@ func (v *Version) Get(key []byte) ([]byte, error) {
 	var tmp2 [1]*FileMetaData
 	var files []*FileMetaData
 	files = make([]*FileMetaData,0)
-	for level := 0; level < NumLevels; level++ {
+	for level := 0; level < 1; level++ {
 		numFiles := 0
 		if len(v.Files[level]) == 0 {
 			continue
 		}
 		if level == 0 {
-			//givenInterval,_ := NewInterval(string(key),string(key))
-			//v.intervaltree.lock.Lock()
-			//overlaps := v.intervaltree.FindOverlap(givenInterval)
-			//v.intervaltree.lock.Unlock()
 			for i := 0; i < len(v.Files[level]); i++ {
 				f := v.Files[level][i]
-				if UserKeyComparator(key, f.smallest.UserKey) >= 0 && UserKeyComparator(key, f.largest.UserKey) <= 0 {
+				k := string(key)
+				small := string(f.smallest.UserKey)
+				largest := string(f.largest.UserKey)
+				if UserKeyComparator([]byte(k), []byte(small)) >= 0 && UserKeyComparator([]byte(k), []byte(largest)) <= 0 {
 					tmp = append(tmp, f)
 				}
 			}
+
+			/*givenInterval,_ := NewInterval(string(key),string(key))
+			v.intervaltree.lock.Lock()
+			overlaps := v.intervaltree.FindOverlap(givenInterval)
+			v.intervaltree.lock.Unlock()
+			for i := 0; i < len(overlaps); i++ {
+				f := &FileMetaData{Number: overlaps[i].filenum,largest: nil,smallest: nil}
+				tmp = append(tmp, f)
+			}*/
+
 			if len(tmp) == 0 {
 				continue
 			}
+
 			// 给文件按照seq号排序，这个序号越新就代表这个文件越新
 			sort.Slice(tmp, func(i, j int) bool { return tmp[i].Number > tmp[j].Number })
 			numFiles = len(tmp)

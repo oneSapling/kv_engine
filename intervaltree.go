@@ -10,8 +10,7 @@ import (
 // t.after（u）判断t是否在u前面
 
 // wishlist
-// polymorphic intervals with an interface and a method to compare them
-// a payload within each interval
+// polymorphic intervals with an interface and a method to compare them a payload within each interval
 // AVL tree or red black tree insertion/deletion instead of BST
 
 
@@ -86,14 +85,22 @@ func newIntervalTreeNode(i Interval) *IntervalTreeNode {
 }
 
 func (node *IntervalTreeNode) insert(i Interval) *IntervalTreeNode  {
-    start := node.i.Start()
-    if UserKeyComparator([]byte(i.End()), []byte(start)) < 0 {
+    judgeLeft := UserKeyComparator([]byte(i.Start()), []byte(node.i.start))
+    judgeRight := UserKeyComparator([]byte(i.End()), []byte(node.i.end))
+    if judgeLeft <= 0 {
         if node.left == nil {
             node.left = newIntervalTreeNode(i)
         } else {
             node.left.insert(i)
         }
-    } else {
+    } else if judgeRight >= 0 {
+        if node.right == nil {
+            node.right = newIntervalTreeNode(i)
+        } else {
+            node.right.insert(i)
+        }
+    }else {
+        //fmt.Println("在两种情况以外")
         if node.right == nil {
             node.right = newIntervalTreeNode(i)
         } else {
